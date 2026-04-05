@@ -1,0 +1,82 @@
+<header>
+  <h1>Add a question</h1>
+  <p>Fill in the fields below and select the correct answer.</p>
+</header>
+
+<div class="card">
+  <form id="triviaForm" novalidate>
+
+    <!-- Row: category + decade side by side -->
+    <div class="field-row">
+      <div class="field">
+        <label>Category <span class="req">*</span></label>
+        <div class="select-wrap">
+          <select id="category" name="category" required>
+            <option value="" disabled selected>Choose…</option>
+            <option>General Knowledge</option>
+            <option>Science &amp; Nature</option>
+            <option>History</option>
+            <option>Geography</option>
+            <option>Sports</option>
+            <option>Entertainment</option>
+            <option>Technology</option>
+            <option>Food &amp; Drink</option>
+            <option>Art &amp; Literature</option>
+            <option>Music</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Decade <span class="req">*</span></label>
+        <div class="select-wrap">
+          <select id="decade" name="decade" required>
+            <option value="" disabled selected>Choose…</option>
+			<option>Classical Antiquity</option>
+			<option>Middle Ages</option>
+			<option>1600s</option>
+			<option>1700s</option>
+            <option>1800s</option>
+            <option>1900s</option>
+            <option>1910s</option>
+            <option>1920s</option>
+            <option>1930s</option>
+            <option>1940s</option>
+            <option>1950s</option>
+            <option>1960s</option>
+            <option>1970s</option>
+            <option>1980s</option>
+            <option>1990s</option>
+            <option>2000s</option>
+            <option>2010s</option>
+            <option>2020s</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Question <span class="req">*</span></label>
+      <textarea id="question" name="question" placeholder="Enter your trivia question…" maxlength="400" required></textarea>
+      <div class="char-counter" id="qCounter">0 / 400</div>
+    </div>
+
+    <div class="section-label">Answers — check the correct one</div>
+    <div class="answers" id="answersBlock"></div>
+
+    <button type="submit" class="btn-submit" id="submitBtn">
+      <span id="btnLabel">Save question</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+
+  </form>
+</div>
+
+<div id="toast">
+  <span id="toastIcon"></span>
+  <span id="toastMsg"></span>
+</div>
+
+<script src="./js/form.js"></script>
+</body>
+</html>
