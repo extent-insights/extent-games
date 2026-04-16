@@ -1,12 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trivia — Question Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./css/form.css" />
+</head>
+<body>
+
 <header>
-  <h1>Add a question</h1>
-  <p>Fill in the fields below and select the correct answer.</p>
+  <h1>Trivia question manager</h1>
+  <p>Add and manage your trivia question bank.</p>
 </header>
 
-<div class="card">
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab-btn active" data-tab="add">Add question</button>
+  <button class="tab-btn" data-tab="manage">Manage questions</button>
+</div>
+
+<!-- ── Tab: Add question ───────────────────────── -->
+<div id="tab-add" class="tab-panel card">
   <form id="triviaForm" novalidate>
 
-    <!-- Row: category + decade side by side -->
     <div class="field-row">
       <div class="field">
         <label>Category <span class="req">*</span></label>
@@ -28,14 +46,14 @@
       </div>
 
       <div class="field">
-        <label>Decade <span class="req">*</span></label>
+        <label>Period <span class="req">*</span></label>
         <div class="select-wrap">
-          <select id="decade" name="decade" required>
+          <select id="period" name="period" required>
             <option value="" disabled selected>Choose…</option>
-			<option>Classical Antiquity</option>
-			<option>Middle Ages</option>
-			<option>1600s</option>
-			<option>1700s</option>
+            <option>Classical Antiquity</option>
+            <option>Middle Ages</option>
+            <option>1600s</option>
+            <option>1700s</option>
             <option>1800s</option>
             <option>1900s</option>
             <option>1910s</option>
@@ -70,6 +88,151 @@
     </button>
 
   </form>
+</div>
+
+<!-- ── Tab: Manage questions ──────────────────── -->
+<div id="tab-manage" class="tab-panel card" hidden>
+
+  <div class="filter-row">
+    <div class="select-wrap">
+      <select id="filterCategory">
+        <option value="">All categories</option>
+        <option>General Knowledge</option>
+        <option>Science &amp; Nature</option>
+        <option>History</option>
+        <option>Geography</option>
+        <option>Sports</option>
+        <option>Entertainment</option>
+        <option>Technology</option>
+        <option>Food &amp; Drink</option>
+        <option>Art &amp; Literature</option>
+        <option>Music</option>
+      </select>
+    </div>
+    <div class="select-wrap">
+      <select id="filterPeriod">
+        <option value="">All periods</option>
+        <option>Classical Antiquity</option>
+        <option>Middle Ages</option>
+        <option>1600s</option>
+        <option>1700s</option>
+        <option>1800s</option>
+        <option>1900s</option>
+        <option>1910s</option>
+        <option>1920s</option>
+        <option>1930s</option>
+        <option>1940s</option>
+        <option>1950s</option>
+        <option>1960s</option>
+        <option>1970s</option>
+        <option>1980s</option>
+        <option>1990s</option>
+        <option>2000s</option>
+        <option>2010s</option>
+        <option>2020s</option>
+      </select>
+    </div>
+    <input type="text" id="filterSearch" placeholder="Search questions…" />
+  </div>
+
+  <div class="results-meta" id="resultsMeta"></div>
+
+  <div id="questionList">
+    <div class="list-empty">Loading questions…</div>
+  </div>
+
+</div>
+
+<!-- ── Edit modal ─────────────────────────────── -->
+<div id="modalBackdrop" class="modal-backdrop" hidden>
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Edit question</span>
+      <button type="button" class="modal-close" id="modalClose">✕</button>
+    </div>
+
+    <form id="editForm" novalidate>
+      <input type="hidden" id="editId" />
+
+      <div class="field-row">
+        <div class="field">
+          <label>Category <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="editCategory" required>
+              <option value="" disabled selected>Choose…</option>
+              <option>General Knowledge</option>
+              <option>Science &amp; Nature</option>
+              <option>History</option>
+              <option>Geography</option>
+              <option>Sports</option>
+              <option>Entertainment</option>
+              <option>Technology</option>
+              <option>Food &amp; Drink</option>
+              <option>Art &amp; Literature</option>
+              <option>Music</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Period <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="editPeriod" required>
+              <option value="" disabled selected>Choose…</option>
+              <option>Classical Antiquity</option>
+              <option>Middle Ages</option>
+              <option>1600s</option>
+              <option>1700s</option>
+              <option>1800s</option>
+              <option>1900s</option>
+              <option>1910s</option>
+              <option>1920s</option>
+              <option>1930s</option>
+              <option>1940s</option>
+              <option>1950s</option>
+              <option>1960s</option>
+              <option>1970s</option>
+              <option>1980s</option>
+              <option>1990s</option>
+              <option>2000s</option>
+              <option>2010s</option>
+              <option>2020s</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Question <span class="req">*</span></label>
+        <textarea id="editQuestion" maxlength="400" required></textarea>
+      </div>
+
+      <div class="section-label">Answers — check the correct one</div>
+      <div class="answers" id="editAnswersBlock"></div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="modalCancel">Cancel</button>
+        <button type="submit" class="btn-submit" id="editSubmitBtn">
+          <span id="editBtnLabel">Save changes</span>
+          <div class="spinner" id="editSpinner"></div>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Delete confirm modal ───────────────────── -->
+<div id="deleteBackdrop" class="modal-backdrop" hidden>
+  <div class="modal modal--sm">
+    <div class="modal-header">
+      <span class="modal-title">Delete question?</span>
+      <button type="button" class="modal-close" id="deleteClose">✕</button>
+    </div>
+    <p class="delete-preview" id="deletePreview"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn-secondary" id="deleteCancel">Cancel</button>
+      <button type="button" class="btn-danger" id="deleteConfirm">Delete</button>
+    </div>
+  </div>
 </div>
 
 <div id="toast">
