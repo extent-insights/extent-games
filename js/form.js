@@ -1,3 +1,27 @@
+//
+import { getUser } from "./auth.js";
+import { openAuthModal } from "./auth-modal.js";
+
+// Gate the entire form — redirect anonymous users
+async function checkAccess() {
+  const user = await getUser();
+  if (!user) {
+    // Hide the form content, show a message with a sign-in prompt
+    document.getElementById("formContent").hidden = true;
+    document.getElementById("accessGate").hidden  = false;
+    document.getElementById("btnGateSignin").addEventListener("click", openAuthModal);
+    window.addEventListener("auth:changed", async () => {
+      const u = await getUser();
+      if (u) {
+        document.getElementById("formContent").hidden = false;
+        document.getElementById("accessGate").hidden  = true;
+      }
+    });
+  }
+}
+
+checkAccess();
+
 // ── Config ───────────────────────────────────────────
 const API_BASE = "http://192.168.1.30:8000";
 

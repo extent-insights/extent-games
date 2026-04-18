@@ -6,3 +6,6 @@ dist/
 build/
 .vscode/
 *.log
+backend/
+csv/
+py/

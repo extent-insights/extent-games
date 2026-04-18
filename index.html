@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trivia — Play</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./css/game.css" />
+</head>
+<body>
+
+<div class="landing-wrap">
+
+  <header class="landing-header">
+    <div class="logo">⚡ Trivia</div>
+    <button class="btn-register" onclick="window.location.href='register.html'">Register &amp; track scores</button>
+  </header>
+
+  <div class="hero">
+    <h1>Pick your mode</h1>
+    <p>Five ways to play. How do you want to be tested?</p>
+  </div>
+
+  <!-- Mode cards -->
+  <div class="mode-grid">
+
+    <button class="mode-card" data-mode="daily">
+      <div class="mode-icon">📅</div>
+      <div class="mode-body">
+        <div class="mode-name">Daily Run</div>
+        <div class="mode-desc">10 random questions. One shot per day.</div>
+        <div class="mode-tags">
+          <span class="tag">10 questions</span>
+          <span class="tag">random</span>
+        </div>
+      </div>
+      <div class="mode-arrow">→</div>
+    </button>
+
+    <button class="mode-card" data-mode="speed">
+      <div class="mode-icon">⚡</div>
+      <div class="mode-body">
+        <div class="mode-name">Speed Run</div>
+        <div class="mode-desc">Answer fast, score big. Points drop every second.</div>
+        <div class="mode-tags">
+          <span class="tag">timed</span>
+          <span class="tag">score bonus</span>
+        </div>
+      </div>
+      <div class="mode-arrow">→</div>
+    </button>
+
+    <button class="mode-card" data-mode="survival">
+      <div class="mode-icon">❤️</div>
+      <div class="mode-body">
+        <div class="mode-name">Survival</div>
+        <div class="mode-desc">One wrong answer and it's over. How far can you go?</div>
+        <div class="mode-tags">
+          <span class="tag">1 life</span>
+          <span class="tag">endless</span>
+        </div>
+      </div>
+      <div class="mode-arrow">→</div>
+    </button>
+
+    <button class="mode-card" data-mode="challenge">
+      <div class="mode-icon">🏆</div>
+      <div class="mode-body">
+        <div class="mode-name">Challenge</div>
+        <div class="mode-desc">Set your score then share the link — can your friend beat it?</div>
+        <div class="mode-tags">
+          <span class="tag">shareable</span>
+          <span class="tag">vs friend</span>
+        </div>
+      </div>
+      <div class="mode-arrow">→</div>
+    </button>
+
+    <button class="mode-card mode-card--custom" data-mode="custom">
+      <div class="mode-icon">🎛️</div>
+      <div class="mode-body">
+        <div class="mode-name">Custom</div>
+        <div class="mode-desc">Choose your category, period, and number of questions.</div>
+
+        <div class="custom-filters" id="customFilters">
+          <div class="select-wrap">
+            <select id="customCategory" onclick="event.stopPropagation()">
+              <option value="">All categories</option>
+              <option>General Knowledge</option>
+              <option>Science &amp; Nature</option>
+              <option>History</option>
+              <option>Geography</option>
+              <option>Sports</option>
+              <option>Entertainment</option>
+              <option>Technology</option>
+              <option>Food &amp; Drink</option>
+              <option>Art &amp; Literature</option>
+              <option>Music</option>
+            </select>
+          </div>
+          <div class="select-wrap">
+            <select id="customPeriod" onclick="event.stopPropagation()">
+              <option value="">All periods</option>
+              <option>Classical Antiquity</option>
+              <option>Middle Ages</option>
+              <option>1600s</option>
+              <option>1700s</option>
+              <option>1800s</option>
+              <option>1900s</option>
+              <option>1910s</option>
+              <option>1920s</option>
+              <option>1930s</option>
+              <option>1940s</option>
+              <option>1950s</option>
+              <option>1960s</option>
+              <option>1970s</option>
+              <option>1980s</option>
+              <option>1990s</option>
+              <option>2000s</option>
+              <option>2010s</option>
+              <option>2020s</option>
+            </select>
+          </div>
+          <div class="select-wrap">
+            <select id="customCount" onclick="event.stopPropagation()">
+              <option value="5">5 questions</option>
+              <option value="10" selected>10 questions</option>
+              <option value="20">20 questions</option>
+              <option value="50">50 questions</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="mode-arrow">→</div>
+    </button>
+
+  </div>
+</div>
+
+<script src="./js/index.js"></script>
+</body>
+</html>

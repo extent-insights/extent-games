@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trivia — Playing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./css/game.css" />
+</head>
+<body class="game-body">
+
+<!-- ── HUD ──────────────────────────────────────── -->
+<div class="hud">
+  <button class="hud-quit" id="quitBtn" title="Quit game">✕</button>
+
+  <div class="hud-center">
+    <div class="hud-mode" id="hudMode"></div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="hud-progress" id="hudProgress"></div>
+  </div>
+
+  <div class="hud-right">
+    <div class="hud-stat" id="hudLives" hidden>
+      <span class="hud-stat-label">Lives</span>
+      <span class="hud-stat-value" id="livesValue">❤️</span>
+    </div>
+    <div class="hud-stat" id="hudTimer" hidden>
+      <span class="hud-stat-label">Time</span>
+      <span class="hud-stat-value" id="timerValue">0.0s</span>
+    </div>
+    <div class="hud-stat">
+      <span class="hud-stat-label">Score</span>
+      <span class="hud-stat-value" id="scoreValue">0</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Question area ─────────────────────────────── -->
+<div class="game-wrap">
+
+  <div class="question-meta">
+    <span class="q-badge" id="qCategory"></span>
+    <span class="q-badge" id="qPeriod"></span>
+  </div>
+
+  <div class="question-text" id="questionText">Loading…</div>
+
+  <div class="answer-grid" id="answerGrid">
+    <button class="answer-btn" data-letter="A"><span class="answer-letter">A</span><span class="answer-text"></span></button>
+    <button class="answer-btn" data-letter="B"><span class="answer-letter">B</span><span class="answer-text"></span></button>
+    <button class="answer-btn" data-letter="C"><span class="answer-letter">C</span><span class="answer-text"></span></button>
+    <button class="answer-btn" data-letter="D"><span class="answer-letter">D</span><span class="answer-text"></span></button>
+  </div>
+
+  <div class="feedback" id="feedback" hidden>
+    <span class="feedback-icon" id="feedbackIcon"></span>
+    <span class="feedback-text" id="feedbackText"></span>
+  </div>
+
+  <button class="btn-next" id="nextBtn" hidden>Next question →</button>
+
+</div>
+
+<!-- ── End screen ────────────────────────────────── -->
+<div class="end-screen" id="endScreen" hidden>
+  <div class="end-card">
+    <div class="end-icon" id="endIcon">🎉</div>
+    <h2 class="end-title" id="endTitle">Game over</h2>
+    <div class="end-score" id="endScore"></div>
+    <div class="end-stats" id="endStats"></div>
+    <div class="end-actions">
+      <button class="btn-submit" onclick="window.location.href='index.html'">Back to menu</button>
+      <button class="btn-secondary" id="shareBtn" hidden>Copy challenge link</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Quit confirm ──────────────────────────────── -->
+<div class="modal-backdrop" id="quitBackdrop" hidden>
+  <div class="modal modal--sm">
+    <div class="modal-header">
+      <span class="modal-title">Quit game?</span>
+    </div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:4px">Your progress will be lost.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="quitCancel">Keep playing</button>
+      <button class="btn-danger" id="quitConfirm">Quit</button>
+    </div>
+  </div>
+</div>
+
+<script src="./js/game.js"></script>
+</body>
+</html>
