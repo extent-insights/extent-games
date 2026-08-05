@@ -3,7 +3,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-window._debugSupabase = supabase; // TEMPORARY — remove after debugging
 
 // Returns the access token string, or null if not logged in
 export async function getAccessToken() {
@@ -46,7 +45,7 @@ export async function signInWithProvider(provider) {
   const { error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: window.location.origin,
+      redirectTo: window.location.href
     }
   });
   if (error) throw error;
