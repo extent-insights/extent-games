@@ -45,7 +45,7 @@ export async function signInWithProvider(provider) {
   const { error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `http://192.168.1.30:5500`,
+      redirectTo: window.location.origin,
     }
   });
   if (error) throw error;
