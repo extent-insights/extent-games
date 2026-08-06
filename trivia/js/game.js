@@ -140,15 +140,17 @@ async function loadQuestions() {
       questions = idOrder.map(id => all.find(q => q.id === id)).filter(Boolean);
 
     } else {
-      // Normal game — fetch and shuffle as usual
-      const url = new URL(`${API_BASE}/questions`);
+      // Normal game — /game/play already randomizes and applies mode/count
+      // server-side, so no client-side shuffle or slicing needed here.
+      const url = new URL(`${API_BASE}/game/play`);
+      url.searchParams.set("mode", MODE);
+      url.searchParams.set("count", COUNT);
       if (CATEGORY) url.searchParams.set("category", CATEGORY);
       if (PERIOD)   url.searchParams.set("period",   PERIOD);
       const res = await fetch(url, { headers: await authHeaders() });
       if (!res.ok) throw new Error("Failed to fetch questions");
-      let all = await res.json();
-      all = all.sort(() => Math.random() - 0.5);
-      questions = config.endless ? all : all.slice(0, COUNT);
+      const data = await res.json();
+      questions = data.questions;
     }
 
     if (questions.length === 0) {
@@ -187,24 +189,20 @@ function showQuestion() {
     [answerPool[i], answerPool[j]] = [answerPool[j], answerPool[i]];
   }
 
-  // Assign shuffled answers to buttons A→D and track which button now holds the correct answer
+  // Assign shuffled answers to buttons A→D. We don't know which one is
+  // correct here anymore — correct_answer is intentionally never sent to
+  // the browser. Each button just remembers its own original pre-shuffle
+  // letter, so the click handler can tell the server what was picked and
+  // let /game/check decide.
   const displayLetters = ["A", "B", "C", "D"];
-  let shuffledCorrect = "";
 
   answerBtns.forEach((btn, i) => {
     btn.className = "answer-btn";
     btn.disabled  = false;
-    btn.dataset.letter = displayLetters[i];   // button position stays A, B, C, D
+    btn.dataset.letter         = displayLetters[i];      // button position, A–D
+    btn.dataset.originalLetter = answerPool[i].letter;    // pre-shuffle a/b/c/d, sent to /game/check
     btn.querySelector(".answer-text").textContent = answerPool[i].text;
-
-    // If this slot now holds the originally correct answer, record it
-    if (answerPool[i].letter === q.correct_answer.toUpperCase()) {
-      shuffledCorrect = displayLetters[i];
-    }
   });
-
-  // Store the shuffled correct answer on the question object for use in the click handler
-  questions[currentIndex]._shuffledCorrect = shuffledCorrect;
 
   // Progress
   const total   = config.endless ? "∞" : questions.length;
@@ -251,23 +249,55 @@ function stopTimer() {
 
 // ── Handle answer ─────────────────────────────────
 answerBtns.forEach(btn => {
-  btn.addEventListener("click", () => {
+  btn.addEventListener("click", async () => {
     if (answered) return;
     answered = true;
 
     let elapsed = 0;
     if (config.timed) elapsed = stopTimer();
 
-    const chosen  = btn.dataset.letter;
-    const correct = questions[currentIndex]._shuffledCorrect;
-    const isRight = chosen === correct;
-    const q       = questions[currentIndex];
+    const chosen         = btn.dataset.letter;          // display position, A–D
+    const originalLetter = btn.dataset.originalLetter;   // pre-shuffle letter sent to the server
+    const q               = questions[currentIndex];
+
+    // Lock the buttons immediately so a slow /game/check response can't be
+    // beaten by a second click.
+    answerBtns.forEach(b => { b.disabled = true; });
+
+    let isRight = false;
+    let correctOriginalLetter = null;
+
+    try {
+      const res = await fetch(`${API_BASE}/game/check`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ question_id: q.id, answer: originalLetter }),
+      });
+      if (!res.ok) throw new Error("Answer check failed");
+      const result = await res.json();
+      isRight = result.correct;
+      correctOriginalLetter = result.correct_answer;
+    } catch (err) {
+      // Let the player retry rather than silently mis-scoring the question.
+      answered = false;
+      answerBtns.forEach(b => { b.disabled = false; });
+      feedback.hidden = false;
+      feedback.className = "feedback wrong";
+      feedbackIcon.textContent = "!";
+      feedbackText.textContent = "Couldn't check that answer — try again.";
+      return;
+    }
+
+    // Find which button currently displays the correct answer, since
+    // display order was shuffled independently of the original letters.
+    const correctBtn = Array.from(answerBtns)
+      .find(b => b.dataset.originalLetter === correctOriginalLetter);
+    const correctDisplayLetter = correctBtn ? correctBtn.dataset.letter : null;
 
     // Highlight buttons
     answerBtns.forEach(b => {
-      b.disabled = true;
-      if (b.dataset.letter === correct) b.classList.add("correct");
-      if (b === btn && !isRight)        b.classList.add("wrong");
+      if (b.dataset.letter === correctDisplayLetter) b.classList.add("correct");
+      if (b === btn && !isRight)                     b.classList.add("wrong");
     });
 
     // Score
@@ -289,7 +319,7 @@ answerBtns.forEach(btn => {
         question_index: currentIndex,
         category:       q.category,
         period:         q.period,
-        chosen_answer:  chosen,
+        chosen_answer:  originalLetter,
         correct:        isRight,
         time_taken_s:   config.timed ? parseFloat(elapsed.toFixed(2)) : null,
       }
@@ -306,7 +336,7 @@ answerBtns.forEach(btn => {
     } else {
       feedback.classList.add("wrong");
       feedbackIcon.textContent = "✗";
-      feedbackText.textContent = `Wrong. The answer was ${correct}.`;
+      feedbackText.textContent = `Wrong. The answer was ${correctDisplayLetter}.`;
 
       if (config.lives) {
         lives--;
