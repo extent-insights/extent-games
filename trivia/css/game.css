@@ -8,7 +8,7 @@
   --border:   #2e2e36;
   --input-bg: #222228;
   --text:     #dddbd5;
-  --muted:    #6b6b78;
+  --muted:    #8f8fa3;
   --accent:   #5b8cf5;
   --correct:  #4a9e6b;
   --error:    #c0614a;
@@ -42,9 +42,19 @@ body {
 }
 
 .logo {
-  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.01em;
+}
+
+.logo-icon {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  color: var(--accent);
 }
 
 /* ── Header auth controls ───────────────────────── */
@@ -703,6 +713,11 @@ body {
   .game-wrap { padding: 36px 24px 60px; }
   .answer-grid { gap: 12px; }
   .end-actions { flex-direction: row; }
+}
+
+@media (max-width: 600px) {
+  .mode-desc { font-size: 14px; }
+  .end-stats { font-size: 14px; }
 }
 
 @media (max-width: 380px) {
