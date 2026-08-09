@@ -145,6 +145,16 @@
     margin-bottom: 8px;
   }
 
+ .cartridge__logo {
+    height: 34px;
+    width: auto;
+    max-width: 100%;
+    display: block;
+    margin-bottom: 8px;
+    align-self: flex-start;
+    object-fit: contain;
+  }
+ 
   .cartridge__desc {
     color: var(--muted);
     font-size: 14.5px;
@@ -247,7 +257,12 @@
     <a class="cartridge" style="--cartridge-color: #E8A33D" href="./trivia/">
       <div class="cartridge__stripe"></div>
       <div class="cartridge__body">
-        <div class="cartridge__title">Trivia Smash!</div>
+        <img
+          class="cartridge__logo"
+          src="./trivia/images/trivia-smash-logo.png"
+          srcset="./trivia/images/trivia-smash-logo.png 1x, ./trivia/images/trivia-smash-logo@3x.png 3x"
+          alt="Trivia Smash"
+        />
         <p class="cartridge__desc">
           Answer questions across categories and eras, then see where you land on the leaderboard.
         </p>
@@ -272,3 +287,4 @@
 
 </body>
 </html>
+

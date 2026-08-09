@@ -41,6 +41,12 @@ body {
   margin-bottom: 36px;
 }
 
+.logo-img {
+  height: 80px;
+  width: auto;
+  display: block;
+}
+
 .logo {
   display: flex;
   align-items: center;
