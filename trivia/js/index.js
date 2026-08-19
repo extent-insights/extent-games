@@ -1,8 +1,14 @@
 // ── Config ───────────────────────────────────────
 import { API_BASE } from "./config.js";
 
-import { getUser, signOut, supabase, getProfile } from "./auth.js";
-import { openAuthModal, closeAuthModal, openSetTagModal } from "./auth-modal.js";
+import { getUser, signOut, supabase, getProfile, setApiBase } from "../../common/js/auth.js";
+import { openAuthModal, closeAuthModal, openSetTagModal } from "../../common/js/auth-modal.js";
+
+// auth.js's getProfile/setGamerTag/checkTagAvailable need to know
+// which backend to call - inject Trivia Smash's API_BASE before
+// anything else runs.
+setApiBase(API_BASE);
+
 
 const MODES = {
   daily:    { questions: 10, shuffle: true },
@@ -24,8 +30,13 @@ async function refreshAuthUI() {
   if (user) {
     btnAuth.hidden  = true;
     userChip.hidden = false;
-    const profile = await getProfile();
-    userEmail.textContent = profile?.gamer_tag ?? user.email;
+    try {
+      const profile = await getProfile();
+      userEmail.textContent = profile?.gamer_tag || user.email;
+    } catch (err) {
+      console.error("[AUTH] Failed to load profile:", err);
+      userEmail.textContent = user.email;
+    }
   } else {
     btnAuth.hidden  = false;
     userChip.hidden = true;
@@ -54,9 +65,16 @@ supabase.auth.onAuthStateChange(async (event, session) => {
   btnAuth.hidden  = true;
   userChip.hidden = false;
 
-  // Fetch profile using the token we know exists
-  const profile = await getProfile(session.access_token);
-  userEmail.textContent = profile?.gamer_tag ?? session.user.email;
+  // Fetch profile using the token we know exists. Authentication remains
+  // usable even if the profile API is temporarily unavailable.
+  let profile = null;
+  try {
+    profile = await getProfile(session.access_token);
+    userEmail.textContent = profile?.gamer_tag || session.user.email;
+  } catch (err) {
+    console.error("[AUTH] Failed to load profile:", err);
+    userEmail.textContent = session.user.email;
+  }
 
   if (!profile?.gamer_tag && !sessionStorage.getItem("tagPromptShown")) {
     sessionStorage.setItem("tagPromptShown", "1");

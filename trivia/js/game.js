@@ -1,4 +1,4 @@
-import { authHeaders, getUser } from "./auth.js";
+import { authHeaders, getUser } from "../../common/js/auth.js";
 
 // ── Config ───────────────────────────────────────
 import { API_BASE } from "./config.js";

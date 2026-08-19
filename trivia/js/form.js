@@ -1,6 +1,6 @@
 //
-import { getUser } from "./auth.js";
-import { openAuthModal } from "./auth-modal.js";
+import { getUser } from "../../common/js/auth.js";
+import { openAuthModal } from "../../common/js/auth-modal.js";
 
 // ── Config ───────────────────────────────────────────
 import { API_BASE } from "./config.js";
