@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Word Smash — Play</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./css/game.css" />
+</head>
+<body>
+
+<div class="landing-wrap">
+
+  <header class="landing-header">
+    <div class="logo"><img class="logo-img wordsmash-logo" src="./images/wordsmash-logo.svg" alt="Word Smash" /></div>
+
+    <!-- Shown when NOT logged in -->
+    <button class="btn-signin" id="btnOpenAuth">Sign in</button>
+
+    <!-- Shown when logged in -->
+    <div class="user-chip" id="userChip" hidden>
+      <span class="user-chip-email" id="userEmail"></span>
+      <button class="btn-signout btn-set-tag" id="btnEditTag" title="Change gamer tag">✎</button>
+      <button class="btn-signout" id="btnSignOut">Sign out</button>
+    </div>
+  </header>
+
+  <div class="hero">
+    <h1>Pick your mode</h1>
+    <p>Find the hidden words. Three ways to play.</p>
+  </div>
+
+  <!-- Mode cards -->
+  <div class="mode-grid">
+
+    <button class="mode-card" data-mode="easy">
+      <div class="mode-icon">🟢</div>
+      <div class="mode-body">
+        <div class="mode-name">Easy</div>
+        <div class="mode-desc">Letters and the word list are visible. Drag across the grid to find each word.</div>
+        <div class="mode-tags">
+          <span class="tag">word list</span>
+          <span class="tag">drag to select</span>
+        </div>
+      </div>
+      <div class="mode-arrow">→</div>
+    </button>
+
+    <button class="mode-card" data-mode="medium">
+      <div class="mode-icon">🟡</div>
+      <div class="mode-body">
+        <div class="mode-name">Medium</div>
+        <div class="mode-desc">Letters are visible. Each hidden word shows its length and one letter in the correct position.</div>
+        <div class="mode-tags">
+          <span class="tag">one-letter clues</span>
+          <span class="tag">drag to select</span>
+        </div>
+      </div>
+      <div class="mode-arrow">→</div>
+    </button>
+
+    <button class="mode-card" data-mode="hard">
+      <div class="mode-icon">🔴</div>
+      <div class="mode-body">
+        <div class="mode-name">Hard</div>
+        <div class="mode-desc">Every tile starts covered. Tap to reveal — remember the path, spell it out.</div>
+        <div class="mode-tags">
+          <span class="tag">memory</span>
+          <span class="tag">tap to reveal</span>
+        </div>
+      </div>
+      <div class="mode-arrow">→</div>
+    </button>
+
+  </div>
+</div>
+
+<script type="module" src="./js/index.js"></script>
+</body>
+</html>

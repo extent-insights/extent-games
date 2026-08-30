@@ -1,7 +1,9 @@
 import { authHeaders, getUser } from "../../common/js/auth.js";
+import { initGameAuthUI } from "../../common/js/game-auth-ui.js";
+import { API_BASE } from "./config.js";
+initGameAuthUI({ apiBase: API_BASE });
 
 // ── Config ───────────────────────────────────────
-import { API_BASE } from "./config.js";
 
 // ── Parse URL params ─────────────────────────────
 const params   = new URLSearchParams(window.location.search);

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bingo Bash — Play</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/styles.css?v=8">
+  <script type="module" src="./js/game.js?v=8"></script>
+</head>
+<body>
+  <div id="participantSetup" class="participant-setup" hidden>
+    <div class="participant-card">
+      <div class="setup-brand"><span>BINGO</span><strong>BASH</strong></div>
+      <h1>Who are you supporting?</h1>
+      <p>Select the player you’re rooting for. This helps personalize your Bingo experience.</p>
+      <div class="roster-panel">
+        <div class="roster-title" id="rosterTitle">TEAM ROSTER</div>
+        <div id="rosterChoices" class="roster-choices"></div>
+      </div>
+      <label class="participant-name-label" for="participantName">YOUR NAME <span>(Optional)</span></label>
+      <p class="participant-name-help">Helps the other fans know who’s who.</p>
+      <input id="participantName" class="participant-name-input" type="text" maxlength="40" autocomplete="given-name" placeholder="First name">
+      <div id="participantPreview" class="participant-preview"></div>
+      <button id="startBingoBtn" class="start-bingo-btn" type="button" disabled>START BINGO <span>→</span></button>
+      <div id="setupError" class="setup-error" hidden></div>
+    </div>
+  </div>
+
+  <div id="welcomeBackdrop" class="welcome-backdrop" hidden>
+    <section class="welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+      <div class="welcome-icon">🏈</div>
+      <h2 id="welcomeTitle">You’re ready for Bingo Bash</h2>
+      <p class="welcome-lead">Watch the game and mark events as they happen.</p>
+      <div class="welcome-rules">
+        <div><i class="legend-player"></i><span><strong>Player Event</strong> — dark tile for a specific player.</span></div>
+        <div><i class="legend-team"></i><span><strong>Team Event</strong> — orange tile for the team.</span></div>
+        <div><i class="legend-free"></i><span><strong>FREE</strong> — gold center square, already yours.</span></div>
+        <div class="welcome-action">Tap a tile to score it. Hold a completed tile for <strong>2 seconds</strong> to undo.</div>
+      </div>
+      <button id="enterGameBtn" class="start-bingo-btn" type="button">PLAY BINGO <span>→</span></button>
+    </section>
+  </div>
+
+  <div id="gameStateBackdrop" class="welcome-backdrop" hidden>
+    <section class="welcome-modal game-state-modal" role="dialog" aria-modal="true" aria-labelledby="gameStateTitle">
+      <div id="gameStateIcon" class="welcome-icon">⏱️</div>
+      <h2 id="gameStateTitle">Game Not Started Yet</h2>
+      <p id="gameStateMessage" class="welcome-lead">Your Bingo card is ready, but the game is not LIVE yet.</p>
+      <button id="gameStateCloseBtn" class="start-bingo-btn" type="button">OK</button>
+    </section>
+  </div>
+
+
+  <div id="leaderboardBackdrop" class="welcome-backdrop" hidden>
+    <section class="leaderboard-modal" role="dialog" aria-modal="true" aria-labelledby="leaderboardTitle">
+      <div class="leaderboard-header">
+        <div>
+          <span class="leaderboard-kicker">GAME LEADERBOARD</span>
+          <h2 id="leaderboardTitle">Standings</h2>
+          <p id="leaderboardMeta">Current game standings</p>
+        </div>
+        <button id="leaderboardCloseBtn" class="modal-close-btn" type="button" aria-label="Close leaderboard">×</button>
+      </div>
+      <div id="leaderboardStatus" class="leaderboard-status">Loading standings…</div>
+      <div id="leaderboardList" class="leaderboard-list" aria-live="polite"></div>
+      <div class="leaderboard-footer">
+        <span id="leaderboardCount"></span>
+        <small>Scores refresh automatically while this window is open.</small>
+      </div>
+    </section>
+  </div>
+
+  <div class="game-page">
+    <header class="topbar game-topbar">
+      <a class="back-link" href="./">← Game</a>
+      <a class="brand compact" href="./"><span>BINGO</span><strong>BASH</strong></a>
+      <div class="auth-slot">
+        <button class="btn-signin" id="btnOpenAuth">Sign in</button>
+        <div class="user-chip" id="userChip" hidden>
+          <span id="userEmail"></span><button id="btnEditTag" title="Change gamer tag">✎</button><button id="btnSignOut">Sign out</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="game-main">
+      <section class="game-summary">
+        <div class="game-info">
+          <div id="gameStatusPill" class="live-pill status-scheduled">SCHEDULED</div>
+          <h1 id="gameTitle">Loading game…</h1>
+          <p id="gameMeta">Preparing your permanent card.</p>
+          <div id="participantIdentity" class="participant-identity" hidden>
+            <div class="participant-copy">
+              <span id="participantDisplayName"></span>
+              <small>Supporting <strong id="supportedPlayer"></strong></small>
+            </div>
+            <div class="participant-actions">
+              <button id="changeSupportBtn" type="button">Change</button>
+              <button id="helpBtn" class="header-help-btn" type="button" aria-label="How to play Bingo Bash">? Help</button>
+            </div>
+          </div>
+        </div>
+        <div class="score-panel">
+          <div><span>Score</span><strong id="scoreValue">0</strong><small id="scoreMax">/ 600</small></div>
+          <div><span>Tiles</span><strong id="tilesValue">0</strong><small>/ 24</small></div>
+          <div><span>Bingo</span><strong id="bingoValue">—</strong></div>
+          <button id="leadersBtn" class="score-help leaders-control" type="button"><span>Leaders</span><strong>♛</strong></button>
+        </div>
+      </section>
+
+
+
+      <div id="statusMessage" class="status-message">Loading your Bingo card…</div>
+
+      <section id="boardSection" class="board-section" hidden>
+        <div class="bingo-headings" aria-hidden="true"><span>B</span><span>I</span><span>N</span><span>G</span><span>O</span></div>
+        <div id="bingoBoard" class="bingo-board" aria-label="Bingo card"></div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

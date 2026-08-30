@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bingo Bash — Game Day Bingo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/styles.css?v=6">
+  <script type="module" src="./js/index.js?v=6"></script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="back-link" href="../">← Games</a>
+      <a class="brand" href="./" aria-label="Bingo Bash home"><span>BINGO</span><strong>BASH</strong></a>
+      <div class="auth-slot">
+        <button class="btn-signin" id="btnOpenAuth">Sign in</button>
+        <div class="user-chip" id="userChip" hidden>
+          <span id="userEmail"></span>
+          <button id="btnEditTag" title="Change gamer tag">✎</button>
+          <button id="btnSignOut">Sign out</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="landing-main">
+      <section class="hero">
+        <div class="hero-kicker">LIVE GAME DAY BINGO</div>
+        <h1>Watch the game.<br><span>Play every moment.</span></h1>
+        <p>Complete squares as events happen on the field. Every tile scores points, Bingo earns a bonus, and your card stays yours for the whole game.</p>
+      </section>
+
+      <section class="fixture-card">
+        <div class="fixture-top">
+          <div>
+            <div class="fixture-label">UPCOMING GAME</div>
+            <h2>Los Gatos JV Boys Football</h2>
+          </div>
+          <div class="sport-badge">🏈 Football</div>
+        </div>
+        <div class="matchup">
+          <div><span class="team-label">HOME</span><strong>Los Gatos</strong></div>
+          <div class="versus">VS</div>
+          <div class="away"><span class="team-label">OPPONENT</span><strong>Salinas High School</strong></div>
+        </div>
+        <div class="fixture-footer">
+          <div><span>Date</span><strong>Sep 24, 2026</strong></div>
+          <div><span>Kickoff</span><strong>4:00 PM</strong></div>
+          <button id="playGameBtn" class="play-btn">Play Bingo <span>→</span></button>
+        </div>
+      </section>
+
+      <section class="how-it-works">
+        <div><b>01</b><strong>Your card</strong><span>A unique card for this game — sign in or play as a guest.</span></div>
+        <div><b>02</b><strong>Tap events</strong><span>Mark a square when it happens on the field.</span></div>
+        <div><b>03</b><strong>Score</strong><span>Earn tile points and chase Bingo.</span></div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

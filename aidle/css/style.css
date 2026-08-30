@@ -1,0 +1,807 @@
+/* ─── Reset & Base ─── */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    background-color: #faf9f6;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100dvh;
+    padding: 0;
+}
+
+.game-container {
+    width: 100%;
+    max-width: 500px;
+    min-height: 100dvh;
+    padding: 12px 8px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+header {
+    width: 100%;
+    text-align: center;
+    padding-bottom: 6px;
+}
+
+h1 {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #5e2b8f;
+}
+
+.header-line {
+    height: 2px;
+    background: #1a1a1a;
+    margin-top: 8px;
+    width: 100%;
+}
+
+#clock {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.75rem;
+    color: #888;
+    letter-spacing: 0.04em;
+}
+
+#message {
+    min-height: 1.5em;
+    text-align: center;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #1a1a1a;
+    letter-spacing: 0.02em;
+}
+
+#game-board {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: min(320px, calc(100vw - 40px));
+}
+
+.board-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+}
+
+.tile {
+    background-color: #ffffff;
+    border: 2px solid #d3d3d3;
+    position: relative;
+    font-weight: 800;
+    transition: border-color 0.1s;
+    border-radius: 3px;
+}
+
+.tile span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding-top: 100%;
+    position: relative;
+}
+
+.tile span::after {
+    content: attr(data-letter);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(1.1rem, 5vw, 2rem);
+    font-weight: 800;
+    font-family: 'Noto Sans', "Helvetica Neue", Arial, sans-serif;
+    color: #1a1a1a;
+}
+
+.tile.filled { border-color: #999; }
+
+.tile.correct { background-color: #6aaa64; border-color: #6aaa64; }
+.tile.present { background-color: #c9b458; border-color: #c9b458; }
+.tile.absent  { background-color: #787c7e; border-color: #787c7e; }
+
+.tile.correct span::after,
+.tile.present span::after,
+.tile.absent span::after { color: #ffffff; }
+
+@keyframes flip {
+    0%   { transform: scaleY(1); }
+    50%  { transform: scaleY(0); }
+    100% { transform: scaleY(1); }
+}
+.tile.flip { animation: flip 0.4s ease forwards; }
+
+@keyframes pop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+.tile.pop { animation: pop 0.1s ease; }
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-6px); }
+    40%       { transform: translateX(6px); }
+    60%       { transform: translateX(-4px); }
+    80%       { transform: translateX(4px); }
+}
+.board-row.shake { animation: shake 0.4s ease; }
+
+/* ─── Keyboard ─── */
+#keyboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    max-width: min(500px, 100vw - 16px);
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: clamp(3px, 1vw, 6px);
+    width: 100%;
+}
+
+/*
+ * flex: 1 makes every letter key share available width equally.
+ * Row 1 has 10 keys so each gets ~1/10 of the row.
+ * clamp() on height and font-size keeps things proportional on all screens.
+ */
+.key {
+    flex: 1;
+    min-width: 0;
+    height: clamp(42px, 8vw, 58px);
+    padding: 0;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-weight: 800;
+    font-size: clamp(0.75rem, 3vw, 1.2rem);
+    border-radius: 4px;
+    background-color: #d3d6da;
+    color: #1a1a1a;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.2s, transform 0.08s;
+    user-select: none;
+}
+
+.special-key {
+    flex: 1.5;
+    min-width: 0;
+    height: clamp(42px, 8vw, 58px);
+    padding: 0;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-weight: 800;
+    font-size: clamp(0.6rem, 2.2vw, 0.85rem);
+    border-radius: 4px;
+    background-color: #d3d6da;
+    color: #1a1a1a;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.2s, transform 0.08s;
+    user-select: none;
+}
+
+.key:active,
+.special-key:active { transform: scale(0.95); }
+
+.key.correct  { background-color: #6aaa64; color: #ffffff; }
+.key.present  { background-color: #c9b458; color: #ffffff; }
+.key.absent   { background-color: #787c7e; color: #ffffff; }
+
+#play-again {
+    display: none;
+    margin-top: 4px;
+    padding: 12px 28px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: #1a1a1a;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background-color 0.15s, transform 0.08s;
+}
+
+#play-again:active {
+    transform: scale(0.97);
+    background-color: #444;
+}
+
+/* ─── Short screens (landscape mobile) ─── */
+@media (max-height: 600px) {
+    .game-container { gap: 6px; }
+    #game-board     { gap: 4px; }
+    .board-row      { gap: 4px; }
+    #keyboard       { gap: 4px; }
+    .keyboard-row   { gap: clamp(2px, 0.8vw, 5px); }
+}
+
+
+
+/* ─── AIDLE platform header / shared auth ─── */
+.game-header {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 2px 2px;
+}
+
+.brand-block { text-align: center; }
+.brand-block h1 {
+    font-family: "Archivo", sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    color: #5e2b8f;
+}
+.brand-subtitle {
+    margin-top: 5px;
+    font-family: "Archivo", sans-serif;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    color: #8a8a8a;
+}
+
+.home-link {
+    justify-self: start;
+    font-family: "Archivo", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #666;
+    text-decoration: none;
+}
+.home-link:hover { color: #5e2b8f; }
+
+.auth-slot {
+    justify-self: end;
+    min-width: 82px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-signin,
+.btn-user-action {
+    border: 1px solid #c9c9c9;
+    background: #fff;
+    color: #444;
+    border-radius: 5px;
+    font-family: "Archivo", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 8px;
+}
+.btn-signin:hover,
+.btn-user-action:hover { border-color: #5e2b8f; color: #5e2b8f; }
+
+.user-chip {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    max-width: 190px;
+}
+.user-chip-email {
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: "Archivo", sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #555;
+}
+
+/* Shared auth modal, adapted to AIDLE's light theme. */
+.auth-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+}
+.auth-backdrop[hidden] { display: none; }
+.auth-modal {
+    --surface: #ffffff;
+    --border: #d5d5d5;
+    --text: #1a1a1a;
+    --muted: #737373;
+    --accent: #5e2b8f;
+    --input-bg: #faf9f6;
+    --error: #c53f3f;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem 1.5rem 1.5rem;
+    width: 100%;
+    max-width: 340px;
+    position: relative;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    font-family: "Archivo", sans-serif;
+}
+.auth-modal h2 { margin: 0 0 4px; font-size: 18px; color: var(--text); }
+.auth-modal p { margin: 0 0 1rem; font-size: 13px; color: var(--muted); }
+.auth-close {
+    position: absolute; top: 12px; right: 14px; background: none; border: none;
+    cursor: pointer; font-size: 18px; color: var(--muted);
+}
+.auth-social-btn {
+    display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 14px;
+    margin-bottom: 8px; border: 1px solid var(--border); border-radius: 6px;
+    background: var(--input-bg); color: var(--text); cursor: pointer; font-size: 14px;
+}
+.auth-divider { display: flex; align-items: center; gap: 8px; margin: 4px 0 12px; }
+.auth-divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
+.auth-divider span { font-size: 12px; color: var(--muted); }
+.auth-error {
+    background: #fff1f1; border: 1px solid #e8b5b5; color: var(--error);
+    border-radius: 6px; padding: 8px 12px; font-size: 13px; margin-bottom: 10px;
+}
+.auth-tabs { display: flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+.auth-tab {
+    flex: 1; padding: 7px; border: none; background: none; cursor: pointer;
+    font-size: 13px; color: var(--muted);
+}
+.auth-tab.active { background: var(--input-bg); color: var(--text); font-weight: 600; }
+.auth-input {
+    width: 100%; padding: 9px 12px; margin-bottom: 8px; border: 1px solid var(--border);
+    border-radius: 6px; background: var(--input-bg); color: var(--text); font-size: 14px; outline: none;
+}
+.auth-input:focus { border-color: var(--accent); }
+.auth-submit {
+    width: 100%; padding: 9px; border: none; border-radius: 6px; background: var(--accent);
+    color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px;
+}
+.auth-link-row { text-align: center; margin-top: 10px; font-size: 13px; }
+.auth-link-row a { color: var(--accent); cursor: pointer; text-decoration: none; }
+.auth-tag-wrap { display: flex; flex-direction: column; gap: 4px; }
+.auth-tag-hint { font-size: 11px; min-height: 16px; padding-left: 2px; color: var(--muted); }
+.auth-tag-hint--ok { color: #2a9d5c; }
+.auth-tag-hint--error { color: #c53f3f; }
+
+@media (max-width: 520px) {
+    .game-header { grid-template-columns: 70px 1fr 96px; }
+    .brand-block h1 { font-size: 1.45rem; }
+    .brand-subtitle { font-size: 0.5rem; }
+    .user-chip-email { display: none; }
+    .btn-user-action { padding: 5px 6px; font-size: 0.64rem; }
+}
+
+/* ─── AIDLE AI race ─── */
+.race-panel {
+    width: min(420px, calc(100vw - 28px));
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: stretch;
+    gap: 10px;
+    margin: 0 auto 2px;
+}
+
+.race-side {
+    border: 1px solid #dedede;
+    border-radius: 8px;
+    background: #fff;
+    padding: 8px 10px;
+    text-align: center;
+}
+
+.race-side-ai {
+    border-color: #cdb8df;
+    background: #fbf8fd;
+}
+
+.race-label {
+    font-family: "Archivo", sans-serif;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #5e2b8f;
+}
+
+.race-value {
+    margin-top: 3px;
+    font-family: "Archivo", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #555;
+}
+
+.race-vs {
+    align-self: center;
+    font-family: "Archivo", sans-serif;
+    font-size: 0.66rem;
+    font-weight: 800;
+    color: #999;
+}
+
+.ai-reveal {
+    width: min(420px, calc(100vw - 28px));
+    padding: 9px 10px;
+    border: 1px solid #cdb8df;
+    border-radius: 8px;
+    background: #fbf8fd;
+    font-family: "Archivo", sans-serif;
+}
+.ai-reveal[hidden] { display: none; }
+.ai-reveal-title {
+    margin-bottom: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #5e2b8f;
+}
+.ai-history-row {
+    display: grid;
+    grid-template-columns: 20px 1fr auto;
+    align-items: center;
+    gap: 7px;
+    margin-top: 4px;
+}
+.ai-turn-number {
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: #777;
+}
+.ai-word-tiles {
+    display: flex;
+    gap: 3px;
+}
+.ai-mini-tile {
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: #fff;
+}
+.ai-mini-tile.correct { background: #6aaa64; }
+.ai-mini-tile.present { background: #c9b458; }
+.ai-mini-tile.absent { background: #787c7e; }
+.ai-candidate-count {
+    font-size: 0.62rem;
+    color: #777;
+    white-space: nowrap;
+}
+
+/* ─── AI difficulty control ─── */
+.difficulty-bar {
+    width: min(420px, calc(100vw - 28px));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    font-family: "Archivo", sans-serif;
+}
+
+.difficulty-bar label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #666;
+}
+
+.difficulty-bar select {
+    border: 1px solid #cdb8df;
+    border-radius: 5px;
+    background: #fff;
+    color: #5e2b8f;
+    padding: 5px 24px 5px 8px;
+    font-family: "Archivo", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* ─── AIDLE landing page ─── */
+.landing-wrap.aidle-landing {
+    width: 100%;
+    max-width: 980px;
+    min-height: 100dvh;
+    padding: 22px 22px 40px;
+    margin: 0 auto;
+}
+
+.aidle-landing-header {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ded9e5;
+}
+
+.aidle-landing-main {
+    padding-top: clamp(36px, 7vw, 72px);
+}
+
+.aidle-hero {
+    max-width: 680px;
+    margin: 0 auto 38px;
+    text-align: center;
+}
+
+.aidle-mark {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+.aidle-mark span {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border: 2px solid #5e2b8f;
+    border-radius: 7px;
+    background: #fff;
+    color: #5e2b8f;
+    font-family: "Archivo", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.aidle-mark span:nth-child(2),
+.aidle-mark span:nth-child(5) {
+    background: #5e2b8f;
+    color: #fff;
+}
+
+.aidle-hero h2 {
+    font-family: "Archivo", sans-serif;
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    line-height: 1;
+    letter-spacing: -0.045em;
+    color: #1f1727;
+    margin-bottom: 15px;
+}
+
+.aidle-hero p {
+    max-width: 620px;
+    margin: 0 auto;
+    font-family: "Archivo", sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #6d6573;
+}
+
+.aidle-mode-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.aidle-mode-card {
+    min-height: 300px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    background: #fff;
+    border: 1px solid #ddd6e3;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(44, 23, 57, 0.06);
+    cursor: pointer;
+    transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.aidle-mode-card:hover {
+    transform: translateY(-3px);
+    border-color: #8c64b2;
+    box-shadow: 0 12px 30px rgba(44, 23, 57, 0.11);
+}
+
+.aidle-mode-card.featured {
+    border: 2px solid #5e2b8f;
+    box-shadow: 0 10px 30px rgba(94, 43, 143, 0.12);
+}
+
+.mode-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+}
+
+.mode-level {
+    font-family: "Archivo", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #5e2b8f;
+}
+
+.mode-dot {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #f1ebf6;
+    color: #5e2b8f;
+    font-family: "Archivo", sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.aidle-mode-card h3 {
+    font-family: "Archivo", sans-serif;
+    font-size: 1.45rem;
+    color: #251b2d;
+    margin-bottom: 10px;
+}
+
+.aidle-mode-card p {
+    font-family: "Archivo", sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: #706779;
+    margin-bottom: 20px;
+}
+
+.mode-rule {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid #eee8f1;
+    font-family: "Archivo", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #827788;
+}
+
+.mode-play {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 18px;
+    font-family: "Archivo", sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #5e2b8f;
+}
+
+.mode-play span { font-size: 1.2rem; }
+
+.aidle-landing-note {
+    margin: 24px auto 0;
+    text-align: center;
+    font-family: "Archivo", sans-serif;
+    font-size: 0.78rem;
+    color: #8c8391;
+}
+
+.game-meta-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2px;
+}
+
+.game-difficulty {
+    font-family: "Archivo", sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #5e2b8f;
+}
+
+@media (max-width: 760px) {
+    .landing-wrap.aidle-landing { padding: 14px 14px 28px; }
+    .aidle-mode-grid { grid-template-columns: 1fr; }
+    .aidle-mode-card { min-height: 0; }
+    .aidle-hero { margin-bottom: 26px; }
+}
+
+/* ─── AIDLE repeated-letter clues ───
+ * Blue = present + repeated in target.
+ * Purple = correct position + repeated in target.
+ */
+.tile.repeated { background-color: #3b82c4; border-color: #3b82c4; }
+.tile.repeated_correct { background-color: #7b4bb7; border-color: #7b4bb7; }
+.tile.repeated span::after,
+.tile.repeated_correct span::after { color: #ffffff; }
+
+.key.repeated { background-color: #3b82c4; color: #ffffff; }
+.key.repeated_correct { background-color: #7b4bb7; color: #ffffff; }
+
+.ai-mini-tile.repeated { background: #3b82c4; }
+.ai-mini-tile.repeated_correct { background: #7b4bb7; }
+
+/* ─── Local-only debug target controls ─── */
+.debug-target-panel {
+    width: min(420px, calc(100vw - 28px));
+    border: 1px dashed #9b7bb7;
+    border-radius: 8px;
+    background: #f8f3fc;
+    padding: 8px 10px;
+    font-family: "Archivo", sans-serif;
+}
+.debug-target-panel[hidden] { display: none; }
+.debug-target-panel > label {
+    display: block;
+    margin-bottom: 6px;
+    color: #5e2b8f;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+}
+.debug-target-controls {
+    display: grid;
+    grid-template-columns: minmax(92px, 1fr) auto auto;
+    gap: 6px;
+}
+.debug-target-controls input,
+.debug-target-controls button {
+    min-height: 36px;
+    border-radius: 5px;
+    font-family: "Archivo", sans-serif;
+    font-size: 0.72rem;
+}
+.debug-target-controls input {
+    min-width: 0;
+    padding: 0 9px;
+    border: 1px solid #cdb8df;
+    background: #fff;
+    color: #222;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+.debug-target-controls button {
+    padding: 0 9px;
+    border: 1px solid #cdb8df;
+    background: #fff;
+    color: #5e2b8f;
+    font-weight: 700;
+    cursor: pointer;
+}
+.debug-target-note {
+    margin-top: 5px;
+    color: #777;
+    font-size: 0.58rem;
+}
+@media (max-width: 440px) {
+    .debug-target-controls { grid-template-columns: 1fr 1fr; }
+    .debug-target-controls input { grid-column: 1 / -1; }
+}
+
+.aidle-logo-img{display:block;width:min(210px,32vw);height:auto;max-height:58px}.brand-logo-block{display:flex;justify-content:center;align-items:center}@media(max-width:600px){.aidle-logo-img{width:125px}}

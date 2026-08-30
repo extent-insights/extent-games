@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIDLE — Choose Difficulty</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Noto+Sans:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css?v=8">
+    <script type="module" src="./js/index.js?v=2"></script>
+</head>
+<body>
+    <div class="landing-wrap aidle-landing">
+        <header class="landing-header aidle-landing-header">
+            <a class="home-link" href="../" aria-label="Back to Extent Games">← Games</a>
+
+            <div class="brand-block brand-logo-block"><img class="aidle-logo-img" src="./images/aidle-logo.svg" alt="AIDLE — Human vs AI"></div>
+
+            <div class="auth-slot">
+                <button class="btn-signin" id="btnOpenAuth">Sign in</button>
+                <div class="user-chip" id="userChip" hidden>
+                    <span class="user-chip-email" id="userEmail"></span>
+                    <button class="btn-user-action" id="btnEditTag" title="Change gamer tag">✎</button>
+                    <button class="btn-user-action" id="btnSignOut">Sign out</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="aidle-landing-main">
+            <section class="aidle-hero">
+                <div class="aidle-mark" aria-hidden="true">
+                    <span>A</span><span>I</span><span>D</span><span>L</span><span>E</span>
+                </div>
+                <h2>Beat the AI.</h2>
+                <p>You and AIDLE race to solve the same hidden five-letter word. Choose how smart your opponent should be.</p>
+            </section>
+
+            <section class="aidle-mode-grid" aria-label="Choose AI difficulty">
+                <button class="aidle-mode-card easy" data-difficulty="easy">
+                    <div class="mode-card-top">
+                        <div class="mode-level">EASY</div>
+                        <div class="mode-dot">01</div>
+                    </div>
+                    <h3>Partial Clues</h3>
+                    <p>The AI searches the full dictionary and uses green and yellow clues, but ignores gray letters.</p>
+                    <div class="mode-rule">Full dictionary · green + yellow · ignores gray</div>
+                    <div class="mode-play">Play Easy <span>→</span></div>
+                </button>
+
+                <button class="aidle-mode-card medium featured" data-difficulty="medium">
+                    <div class="mode-card-top">
+                        <div class="mode-level">MEDIUM</div>
+                        <div class="mode-dot">02</div>
+                    </div>
+                    <h3>Elimination Mode</h3>
+                    <p>The AI searches the full dictionary and uses green and gray clues, but ignores yellow letters.</p>
+                    <div class="mode-rule">Full dictionary · green + gray · ignores yellow</div>
+                    <div class="mode-play">Play Medium <span>→</span></div>
+                </button>
+
+                <button class="aidle-mode-card hard" data-difficulty="hard">
+                    <div class="mode-card-top">
+                        <div class="mode-level">HARD</div>
+                        <div class="mode-dot">03</div>
+                    </div>
+                    <h3>Optimized AI</h3>
+                    <p>The AI uses every clue and ranks its remaining words by letter coverage and position frequency.</p>
+                    <div class="mode-rule">Perfect filtering · optimized guesses</div>
+                    <div class="mode-play">Play Hard <span>→</span></div>
+                </button>
+            </section>
+
+            <p class="aidle-landing-note">Both players get six turns. Blue marks a repeated misplaced letter; purple marks a repeated letter in the correct position. Solve first to win; solve on the same turn to tie.</p>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bingo Bash — Game Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/styles.css?v=7">
+  <script type="module" src="./js/admin.js?v=1"></script>
+</head>
+<body>
+  <div class="game-page admin-page">
+    <header class="topbar game-topbar">
+      <a class="back-link" href="./">← Bingo Bash</a>
+      <a class="brand compact" href="./"><span>BINGO</span><strong>BASH</strong></a>
+      <div class="auth-slot">
+        <button class="btn-signin" id="btnOpenAuth">Sign in</button>
+        <div class="user-chip" id="userChip" hidden>
+          <span id="userEmail"></span><button id="btnEditTag" title="Change gamer tag">✎</button><button id="btnSignOut">Sign out</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <section class="admin-heading">
+        <div class="live-pill">ADMIN</div>
+        <h1>Game Control</h1>
+        <p>Move Bingo Bash games through their live-game lifecycle.</p>
+      </section>
+      <div id="adminStatus" class="status-message">Loading games…</div>
+      <section id="adminGames" class="admin-games" hidden></section>
+    </main>
+  </div>
+</body>
+</html>

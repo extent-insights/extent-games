@@ -1,0 +1,678 @@
+/* ── Reset & Tokens ─────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+
+:root {
+  /* Light theme - same token names/roles as the trivia game's dark
+     theme, so the two apps share a system even though the palette
+     flips. --accent/--correct/--error/--warning/--radius/--font are
+     carried over unchanged for brand continuity. */
+  --bg:       #faf9f6;
+  --surface:  #ffffff;
+  --border:   #e4e2db;
+  --input-bg: #f2f1ea;
+  --text:     #1c1c21;
+  --muted:    #767685;
+  --accent:   #5b8cf5;
+  --correct:  #4a9e6b;
+  --error:    #c0614a;
+  --warning:  #d4922a;
+  --radius:   8px;
+  --font:     'DM Sans', system-ui, sans-serif;
+
+  /* Tiles: the trivia game's dark --bg (#141418) becomes the tile
+     color here - a deliberate callback, not a new color pulled from
+     nowhere. */
+  --tile-bg:          #141418;
+  --tile-bg-hover:    #232329;
+  --tile-text:        #f2f1ea;
+  --tile-border:      #2e2e36;
+  --tile-found-bg:    color-mix(in srgb, var(--correct) 55%, var(--tile-bg));
+  --tile-found-text:  #ffffff;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  min-height: 100dvh;
+}
+
+/* ── HUD (same structure as trivia game) ────────── */
+.hud {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+}
+
+.hud-quit {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  transition: color .15s;
+  line-height: 1;
+}
+.hud-quit:hover { color: var(--error); }
+
+.hud-mode {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.progress-bar-wrap {
+  height: 3px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 99px;
+  transition: width .4s ease;
+  width: 0%;
+}
+
+.hud-progress { font-size: 11px; color: var(--muted); }
+.hud-right { display: flex; align-items: center; gap: 14px; }
+.hud-stat { display: flex; flex-direction: column; align-items: flex-end; }
+.hud-stat-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.hud-stat-value { font-size: 16px; font-weight: 700; line-height: 1.2; }
+
+#timerValue        { color: var(--accent); }
+#timerValue.warn   { color: var(--warning); }
+#timerValue.danger { color: var(--error); }
+
+/* ── Game content area ──────────────────────────── */
+.game-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 28px 16px 48px;
+  gap: 20px;
+}
+
+.q-badge {
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+/* ── Letter grid ─────────────────────────────────── */
+.grid-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.letter-grid {
+  display: grid;
+  gap: 6px;
+  aspect-ratio: 1 / 1;
+}
+
+.tile {
+  background: var(--tile-bg);
+  color: var(--tile-text);
+  border: 1px solid var(--tile-border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: clamp(12px, 3.2vw, 18px);
+  cursor: pointer;
+  user-select: none;
+  transition: background .12s, border-color .12s, transform .08s;
+}
+
+.tile:hover { background: var(--tile-bg-hover); }
+.tile:active { transform: scale(0.94); }
+
+/* Hard mode: covered tiles show no letter */
+.tile.covered { color: transparent; }
+
+/* Currently-open tile (Hard mode - only one at a time) */
+.tile.open {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* Permanently revealed - part of a found word */
+.tile.found {
+  background: var(--tile-found-bg);
+  border-color: var(--correct);
+  color: var(--tile-found-text);
+  cursor: default;
+}
+
+/* Easy/Medium: tiles selected mid-drag */
+.tile.selecting {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 28%, transparent);
+  transform: scale(0.96);
+}
+
+.tile.selection-start-pulse {
+  animation: selection-start-pulse 0.22s ease-out;
+}
+
+@keyframes selection-start-pulse {
+  0%   { transform: scale(0.84); }
+  100% { transform: scale(0.96); }
+}
+
+/* ── Word list panel ─────────────────────────────── */
+.word-list-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.word-list-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.word-list { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.word-chip {
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 5px 10px;
+  transition: background .15s, color .15s, text-decoration .15s;
+}
+
+.word-chip.found {
+  background: color-mix(in srgb, var(--correct) 12%, var(--surface));
+  border-color: var(--correct);
+  color: var(--correct);
+  text-decoration: line-through;
+}
+
+/* ── Shared buttons (reused from trivia game) ────── */
+.btn-secondary {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 11px;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.btn-secondary:hover { color: var(--text); border-color: var(--text); }
+
+@media (min-width: 600px) {
+  .game-wrap { padding: 36px 24px 60px; }
+}
+
+/* ── Landing page ─────────────────────────────────
+   Same DOM shape as Trivia's landing (landing-header,
+   hero, mode-grid, mode-card) so the two games feel like
+   one product - just retextured light instead of dark. */
+
+.landing-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px 16px 60px;
+}
+
+.landing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  margin-bottom: 12px;
+}
+
+.logo-img { height: 32px; display: block; }
+
+/* No logo asset yet for Word Smash - text fallback matching the
+   trivia logo's slot until one exists. */
+.logo-text {
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--text);
+}
+
+.btn-signin {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 18px;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.btn-signin:hover { opacity: .9; }
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.user-chip-email {
+  font-size: 13px;
+  color: var(--muted);
+}
+.btn-signout {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 12px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.btn-signout:hover { color: var(--text); border-color: var(--text); }
+.btn-set-tag { padding: 6px 9px; }
+
+.hero { padding: 20px 0 32px; }
+.hero h1 {
+  font-family: var(--font);
+  font-size: clamp(28px, 6vw, 40px);
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.hero p {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.mode-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.mode-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.mode-card:hover,
+.mode-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: 0 10px 24px -16px rgba(28, 28, 33, 0.25);
+}
+
+.mode-icon { font-size: 28px; line-height: 1; flex-shrink: 0; }
+.mode-body { flex: 1; }
+.mode-name { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.mode-desc { font-size: 13.5px; color: var(--muted); margin-bottom: 10px; }
+.mode-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.mode-tags .tag {
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 4px;
+  padding: 3px 8px;
+}
+.mode-arrow {
+  font-size: 18px;
+  color: var(--muted);
+  transition: transform .15s ease;
+  flex-shrink: 0;
+}
+.mode-card:hover .mode-arrow,
+.mode-card:focus-visible .mode-arrow { transform: translateX(3px); color: var(--accent); }
+
+@media (min-width: 640px) {
+  .landing-wrap { padding: 48px 24px 80px; }
+}
+
+/* ── Auth modal (injected by auth-modal.js) ──────── */
+.auth-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 28, 33, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+
+.auth-modal {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px 28px 28px;
+  width: 100%;
+  max-width: 380px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.auth-modal h2 {
+  font-family: var(--font);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.auth-modal p {
+  font-size: 13.5px;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+.auth-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+.auth-close:hover { color: var(--text); }
+
+.auth-social-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.auth-social-btn:hover { border-color: var(--muted); background: var(--input-bg); }
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
+}
+.auth-divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
+.auth-divider span { font-size: 12px; color: var(--muted); }
+
+.auth-error {
+  background: color-mix(in srgb, var(--error) 10%, var(--surface));
+  border: 1px solid var(--error);
+  color: var(--error);
+  font-size: 13px;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--input-bg);
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 16px;
+}
+.auth-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 8px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.auth-tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(28,28,33,0.08); }
+
+.auth-input {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 11px 12px;
+  margin-bottom: 10px;
+}
+.auth-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.auth-submit {
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 11px;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.auth-submit:hover { opacity: .9; }
+
+.auth-link-row {
+  text-align: center;
+  margin-top: 12px;
+}
+.auth-link-row a {
+  font-size: 13px;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: none;
+}
+.auth-link-row a:hover { text-decoration: underline; }
+
+.auth-tag-wrap { position: relative; margin-bottom: 10px; }
+.auth-tag-wrap .auth-input { margin-bottom: 4px; }
+.auth-tag-hint { font-size: 12px; color: var(--muted); padding-left: 2px; }
+.auth-tag-hint--ok { color: var(--correct); }
+.auth-tag-hint--error { color: var(--error); }
+
+/* ── Word-length tracker (Hard/Medium - word list hidden) ────── */
+.word-blanks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.word-blank-row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.letter-box {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: transparent;
+  transition: background .2s, border-color .2s, color .2s;
+}
+
+.word-list-title.debug-active {
+  color: var(--warning);
+}
+
+.word-blank-row.debug-revealed .letter-box {
+  color: var(--warning);
+  border-color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 10%, var(--surface));
+}
+
+.word-blank-row.found .letter-box {
+  background: color-mix(in srgb, var(--correct) 14%, var(--surface));
+  border-color: var(--correct);
+  color: var(--correct);
+}
+
+/* Brief feedback when re-tapping a tile shared between two words */
+@keyframes tile-pulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.tile.tile-pulse {
+  animation: tile-pulse 0.25s ease;
+}
+
+
+
+
+.mode-card:disabled,
+.mode-card-disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.mode-card:disabled:hover,
+.mode-card:disabled:focus-visible {
+  transform: none;
+  box-shadow: var(--shadow);
+}
+
+/* ── Easy/Medium drag selection ──────────────────── */
+.drag-select-grid {
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.drag-select-grid .tile {
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Found tiles can still participate in an overlapping word selection. */
+.drag-select-grid .tile.found {
+  cursor: crosshair;
+}
+
+.tile.selection-invalid {
+  animation: invalid-selection-flash 0.26s ease;
+}
+
+@keyframes invalid-selection-flash {
+  0%   { background: var(--tile-bg); border-color: var(--tile-border); }
+  45%  { background: color-mix(in srgb, var(--error) 18%, var(--tile-bg)); border-color: var(--error); }
+  100% { background: var(--tile-bg); border-color: var(--tile-border); }
+}
+
+
+/* v4 compact platform HUD */
+.hud { grid-template-columns: 28px 110px minmax(120px,1fr) auto; gap:10px; }
+.hud-brand img { width:100px; height:auto; display:block; }
+.hud-center { min-width:0; }
+.game-auth { border-left:1px solid var(--border); padding-left:10px; }
+.btn-signin.compact { padding:6px 10px; font-size:12px; }
+.user-chip.compact { gap:5px; }
+.user-chip.compact .btn-signout { padding:4px 6px; font-size:10px; }
+.word-length-groups { display:flex; flex-direction:column; gap:9px; }
+.word-length-group { display:grid; grid-template-columns:58px 1fr; gap:8px; align-items:start; }
+.word-length-label { font-size:10px; font-weight:700; color:var(--muted); padding-top:5px; white-space:nowrap; }
+.word-length-items { display:flex; flex-wrap:wrap; gap:6px 8px; }
+.word-clue { display:flex; gap:2px; padding:3px 5px; border:1px solid var(--border); border-radius:6px; background:var(--input-bg); }
+.word-clue .letter-box { width:17px; height:19px; border:0; border-bottom:1px solid #b9b7b0; border-radius:0; background:transparent; font-size:11px; }
+.word-clue .letter-box.revealed { color:var(--text); }
+.word-clue.found { border-color:var(--correct); background:color-mix(in srgb,var(--correct) 10%,var(--surface)); }
+.word-clue.found .letter-box { color:var(--correct); border-bottom-color:transparent; }
+.completion-backdrop { position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; background:rgba(20,20,24,.66); opacity:0; transition:opacity .2s ease; }
+.completion-backdrop.show { opacity:1; }
+.completion-card { width:min(420px,100%); background:var(--surface); border-radius:18px; padding:30px 24px 24px; text-align:center; box-shadow:0 24px 70px rgba(0,0,0,.28); transform:scale(.88); animation:completion-pop .45s cubic-bezier(.2,.9,.25,1.2) forwards; }
+.completion-burst { width:64px; height:64px; border-radius:50%; display:grid; place-items:center; margin:-4px auto 12px; font-size:34px; background:#fff2c7; color:#d4922a; animation:burst-spin .55s ease; }
+.completion-card h2 { font-size:30px; color:var(--accent); letter-spacing:-.03em; }
+.completion-card>p { color:var(--muted); margin:5px 0 20px; }
+.completion-stats { display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--border); border-radius:10px; margin-bottom:18px; overflow:hidden; }
+.completion-stats div { padding:12px 5px; } .completion-stats div+div { border-left:1px solid var(--border); }
+.completion-stats span { display:block; font-size:10px; color:var(--muted); text-transform:uppercase; } .completion-stats strong { display:block; margin-top:3px; }
+.completion-actions { display:grid; gap:8px; }
+.btn-primary { border:0; border-radius:8px; padding:12px; font:600 14px var(--font); color:#fff; background:var(--accent); cursor:pointer; }
+@keyframes completion-pop { to { transform:scale(1); } } @keyframes burst-spin { from{transform:rotate(-25deg) scale(.5)} to{transform:rotate(0) scale(1)} }
+@media(max-width:700px){ .hud { grid-template-columns:24px 1fr auto; } .hud-brand{display:none} .game-auth .user-chip-email{max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .game-auth .btn-set-tag{display:none} .word-list-panel{padding:10px} .word-length-group{grid-template-columns:50px 1fr;gap:5px}.word-length-items{gap:5px}.word-clue{padding:2px 4px}.word-clue .letter-box{width:15px;height:18px;font-size:10px}.game-wrap{gap:12px;padding-top:16px} }
+@media(max-width:430px){ .hud-mode{margin-bottom:2px}.hud-progress{font-size:10px}.hud-stat-label{display:none}.hud-stat-value{font-size:13px}.game-auth .user-chip-email{display:none}.game-auth{padding-left:5px}.word-length-label{font-size:9px}.word-length-group{grid-template-columns:45px 1fr}.grid-panel{padding:10px}.letter-grid{gap:4px} }

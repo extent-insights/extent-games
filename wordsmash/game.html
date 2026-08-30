@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Word Smash - Play</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/game.css" />
+</head>
+<body>
+
+<div class="hud">
+  <button class="hud-quit" id="hudQuit" aria-label="Quit">&times;</button>
+  <div class="hud-brand"><img src="./images/wordsmash-logo.svg" alt="Word Smash"></div>
+  <div class="hud-center">
+    <div class="hud-mode" id="hudMode">Hard mode</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="hudProgressBar"></div>
+    </div>
+    <div class="hud-progress" id="hudProgress">0 / 6 found</div>
+  </div>
+  <div class="hud-right">
+    <div class="hud-stat">
+      <div class="hud-stat-label">Time</div>
+      <div class="hud-stat-value" id="timerValue">01:42</div>
+    </div>
+    <div class="game-auth auth-slot">
+      <button class="btn-signin compact" id="btnOpenAuth">Sign in</button>
+      <div class="user-chip compact" id="userChip" hidden>
+        <span class="user-chip-email" id="userEmail"></span>
+        <button class="btn-signout btn-set-tag" id="btnEditTag" title="Change gamer tag">✎</button>
+        <button class="btn-signout" id="btnSignOut">Sign out</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="game-wrap">
+  <span class="q-badge" id="gridSizeBadge">8 &times; 8 grid</span>
+  <div id="gameRoot">
+    <p style="color: var(--muted); font-size: 14px;">Loading puzzle&hellip;</p>
+  </div>
+  <button class="btn-secondary" id="newPuzzleBtn">New puzzle</button>
+</div>
+
+<div class="completion-backdrop" id="completionBackdrop" hidden>
+  <section class="completion-card" role="dialog" aria-modal="true" aria-labelledby="completionTitle">
+    <div class="completion-burst" aria-hidden="true">★</div>
+    <h2 id="completionTitle">WORD SMASHED!</h2>
+    <p>You found every word.</p>
+    <div class="completion-stats">
+      <div><span>Mode</span><strong id="completeMode">Medium</strong></div>
+      <div><span>Time</span><strong id="completeTime">0:00</strong></div>
+      <div><span>Words</span><strong id="completeWords">0/0</strong></div>
+    </div>
+    <div class="completion-actions"><button class="btn-primary" id="playAgainBtn">Play again</button><button class="btn-secondary" id="backModesBtn">Back to modes</button></div>
+  </section>
+</div>
+
+<script type="module">
+  import { API_BASE } from "./js/config.js";
+  import { initGameAuthUI } from "../common/js/game-auth-ui.js";
+  initGameAuthUI({ apiBase: API_BASE });
+
+  // Mode comes from the landing page, e.g. game.html?mode=hard
+  const params = new URLSearchParams(window.location.search);
+  const MODE = ["easy", "medium", "hard"].includes(params.get("mode"))
+    ? params.get("mode")
+    : "hard";
+
+  // Debug flag - game.html?mode=hard&debug=1 - reveals the actual
+  // words in the tracker panel instead of blanks. Not exposed in any
+  // UI control, URL param only, since this is a dev/debugging aid.
+  const DEBUG = params.get("debug") === "1" || params.get("debug") === "true";
+
+  let timerStartedAt = 0;
+  let timerInterval = null;
+  let elapsedSeconds = 0;
+  const formatTime = (secs) => `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
+  function startTimer() {
+    clearInterval(timerInterval); elapsedSeconds = 0; timerStartedAt = Date.now();
+    document.getElementById("timerValue").textContent = "0:00";
+    timerInterval = setInterval(() => {
+      elapsedSeconds = Math.floor((Date.now() - timerStartedAt) / 1000);
+      document.getElementById("timerValue").textContent = formatTime(elapsedSeconds);
+    }, 250);
+  }
+  function stopTimer() {
+    if (timerStartedAt) elapsedSeconds = Math.floor((Date.now() - timerStartedAt) / 1000);
+    clearInterval(timerInterval); timerInterval = null;
+    document.getElementById("timerValue").textContent = formatTime(elapsedSeconds);
+  }
+  function showCompletion(total) {
+    stopTimer();
+    document.getElementById("completeMode").textContent = MODE[0].toUpperCase() + MODE.slice(1);
+    document.getElementById("completeTime").textContent = formatTime(elapsedSeconds);
+    document.getElementById("completeWords").textContent = `${total}/${total}`;
+    const backdrop = document.getElementById("completionBackdrop");
+    backdrop.hidden = false; requestAnimationFrame(() => backdrop.classList.add("show"));
+  }
+
+  // Per-mode puzzle config. Difficulty comes from both puzzle density
+  // and how much information the player gets:
+  //   Easy   - 8x8, 10 words, visible word list, drag selection.
+  //   Medium - 9x9, 13 words, hidden words/length clues, drag selection.
+  //   Hard   - 8x8, 10 hidden words, covered tiles + memory/tap mechanic.
+  const MODE_CONFIG = {
+    easy:   { grid_size: 8, word_counts: { "3": 4, "4": 3, "5": 2, "6": 1 } },
+    medium: { grid_size: 9, word_counts: { "3": 4, "4": 4, "5": 3, "6": 2 } },
+    hard:   { grid_size: 8, word_counts: { "3": 4, "4": 3, "5": 2, "6": 1 } },
+  };
+
+  document.getElementById("hudMode").textContent =
+    `${MODE[0].toUpperCase()}${MODE.slice(1)} mode${DEBUG ? " · DEBUG" : ""}`;
+  document.getElementById("hudQuit").addEventListener("click", () => {
+    window.location.href = "./index.html";
+  });
+
+  async function loadPuzzle() {
+    const root = document.getElementById("gameRoot");
+    root.innerHTML = '<p style="color: var(--muted); font-size: 14px;">Loading puzzle&hellip;</p>';
+
+    const config = MODE_CONFIG[MODE];
+    let puzzle;
+    try {
+      const res = await fetch(`${API_BASE}/puzzles/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          grid_size: config.grid_size,
+          mode: MODE,
+          word_counts: config.word_counts
+        })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `Server returned ${res.status}`);
+      }
+      puzzle = await res.json();
+    } catch (e) {
+      root.innerHTML = `<p style="color: var(--error); font-size: 14px;">
+        Couldn't load a puzzle: ${e.message}.<br>
+        Is the backend running at ${API_BASE}?
+      </p>`;
+      return;
+    }
+
+    document.getElementById("gridSizeBadge").textContent =
+      `${puzzle.grid.length} \u00d7 ${puzzle.grid.length} grid`;
+    document.getElementById("hudProgress").textContent = `0 / ${puzzle.words.length} found`;
+    document.getElementById("hudProgressBar").style.width = "0%";
+    document.getElementById("completionBackdrop").hidden = true;
+    document.getElementById("completionBackdrop").classList.remove("show");
+    startTimer();
+
+    const game = new WordSearchGame(root, puzzle, { mode: MODE, debug: DEBUG });
+    game.onWordFound = (word, foundCount, total) => {
+      document.getElementById("hudProgress").textContent = `${foundCount} / ${total} found`;
+      document.getElementById("hudProgressBar").style.width = `${(foundCount / total) * 100}%`;
+      if (foundCount === total) showCompletion(total);
+    };
+  }
+
+  document.getElementById("newPuzzleBtn").addEventListener("click", loadPuzzle);
+  document.getElementById("playAgainBtn").addEventListener("click", loadPuzzle);
+  document.getElementById("backModesBtn").addEventListener("click", () => window.location.href = "./index.html");
+  document.addEventListener("DOMContentLoaded", loadPuzzle);
+</script>
+<script src="./js/grid.js"></script>
+</body>
+</html>

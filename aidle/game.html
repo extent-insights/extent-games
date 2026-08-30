@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIDLE — Play</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Noto+Sans:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css?v=9">
+    <script type="module" src="./js/game.js?v=10"></script>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <a class="home-link" href="./index.html" aria-label="Back to AIDLE difficulty selection">← Modes</a>
+
+            <div class="brand-block brand-logo-block"><img class="aidle-logo-img" src="./images/aidle-logo.svg" alt="AIDLE — Human vs AI"></div>
+
+            <div class="auth-slot">
+                <button class="btn-signin" id="btnOpenAuth">Sign in</button>
+                <div class="user-chip" id="userChip" hidden>
+                    <span class="user-chip-email" id="userEmail"></span>
+                    <button class="btn-user-action" id="btnEditTag" title="Change gamer tag">✎</button>
+                    <button class="btn-user-action" id="btnSignOut">Sign out</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="header-line"></div>
+        <div class="game-meta-row">
+            <div id="clock"></div>
+            <div class="game-difficulty" id="gameDifficulty">MEDIUM AI</div>
+        </div>
+        <section class="debug-target-panel" id="debugTargetPanel" hidden aria-label="Local debug target word">
+            <label for="debugTargetWord">LOCAL DEBUG TARGET</label>
+            <div class="debug-target-controls">
+                <input id="debugTargetWord" type="text" maxlength="5" autocomplete="off"
+                       autocapitalize="characters" spellcheck="false" placeholder="APPLE">
+                <button id="debugRestartTarget" type="button">Start with word</button>
+                <button id="debugClearTarget" type="button">Random</button>
+            </div>
+            <div class="debug-target-note">Development only · answer must exist in the AIDLE word list.</div>
+        </section>
+        <div class="race-panel" id="racePanel">
+            <div class="race-side">
+                <div class="race-label">YOU</div>
+                <div class="race-value" id="playerRaceStatus">0 / 6 guesses</div>
+            </div>
+            <div class="race-vs">VS</div>
+            <div class="race-side race-side-ai">
+                <div class="race-label">AIDLE AI</div>
+                <div class="race-value" id="aiRaceStatus">Preparing opponent…</div>
+            </div>
+        </div>
+        <div id="aiReveal" class="ai-reveal" hidden></div>
+        <div id="message"></div>
+        <div id="game-board"></div>
+        <div id="keyboard"></div>
+    </div>
+</body>
+</html>

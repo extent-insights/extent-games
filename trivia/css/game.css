@@ -764,3 +764,6 @@ body {
   font-size: 15px;
   line-height: 1;
 }
+
+/* Shared logged-in status on game HUD */
+.game-auth{border-left:1px solid var(--border);padding-left:10px;margin-left:2px}.game-auth-chip{display:flex;align-items:center;gap:5px}.game-auth .user-chip-email{font-size:11px;color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.game-auth .btn-signout,.game-auth-signin{font-size:10px;padding:5px 7px;border-radius:6px}.game-auth-signin{background:var(--accent);color:white;border:0;cursor:pointer}@media(max-width:650px){.game-auth .user-chip-email,.game-auth .btn-set-tag{display:none}.game-auth{padding-left:5px}.game-auth .btn-signout,.game-auth-signin{padding:4px 5px}}
