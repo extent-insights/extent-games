@@ -25,6 +25,29 @@ body {
   min-height: 100dvh;
 }
 
+
+
+/* ── Shared game navigation ───────────────────────── */
+.back-link {
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  line-height: 1.2;
+}
+
+.back-link:hover,
+.back-link:focus-visible {
+  color: #ffffff;
+}
+
+.game-back-link {
+  display: block;
+  width: min(560px, calc(100% - 32px));
+  margin: 14px auto 0;
+}
+
 /* ════════════════════════════════════════════════
    LANDING PAGE
 ════════════════════════════════════════════════ */

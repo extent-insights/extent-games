@@ -146,18 +146,102 @@
   }
 
  .cartridge__logo {
-    height: 34px;
     width: auto;
     max-width: 100%;
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     align-self: flex-start;
     object-fit: contain;
   }
- 
+
+  .cartridge__logo--trivia {
+    height: 46px;
+  }
+
+  .cartridge__wordmark {
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 4px;
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .cartridge__logo-tagline {
+    margin-bottom: 14px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #b8c0ca;
+  }
+
+  .cartridge__wordmark--wordsmash {
+    gap: 8px;
+    letter-spacing: -0.03em;
+  }
+
+  .wordsmash-word {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .wordsmash-word span {
+    width: 20px;
+    height: 20px;
+    display: grid;
+    place-items: center;
+    border-radius: 3px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+    color: #ffffff;
+  }
+
+  .wordsmash-word span:nth-child(1) { background: #7657d8; }
+  .wordsmash-word span:nth-child(2) { background: #5b8cf5; }
+  .wordsmash-word span:nth-child(3) { background: #e8a33d; }
+  .wordsmash-word span:nth-child(4) { background: #4eb5a6; }
+
+  .wordsmash-smash {
+    color: #ffffff;
+    font-size: 22px;
+    letter-spacing: -0.03em;
+  }
+
+  .cartridge__wordmark--aidle {
+    color: #ffffff;
+    font-size: 27px;
+    letter-spacing: 0.01em;
+  }
+
+  .cartridge__wordmark--aidle .aidle-ai {
+    color: var(--cartridge-color);
+  }
+
+  .cartridge__wordmark--bingo {
+    margin-bottom: 12px;
+  }
+
+  .cartridge__wordmark--bingo .bingo-word {
+    color: #ffffff;
+  }
+
+  .cartridge__wordmark--bingo .bash-word {
+    color: var(--cartridge-color);
+  }
+
   .cartridge__desc {
-    color: var(--muted);
-    font-size: 14.5px;
+    color: var(--text);
+    font-size: 15px;
     flex: 1;
     margin-bottom: 18px;
   }
@@ -258,7 +342,7 @@
       <div class="cartridge__stripe"></div>
       <div class="cartridge__body">
         <img
-          class="cartridge__logo"
+          class="cartridge__logo cartridge__logo--trivia"
           src="./trivia/images/trivia-smash-logo.png"
           srcset="./trivia/images/trivia-smash-logo.png 1x, ./trivia/images/trivia-smash-logo@3x.png 3x"
           alt="Trivia Smash"
@@ -274,11 +358,13 @@
     <a class="cartridge" style="--cartridge-color: #5B8CF5" href="./wordsmash/">
       <div class="cartridge__stripe"></div>
       <div class="cartridge__body">
-        <img
-          class="cartridge__logo"
-          src="./wordsmash/images/wordsmash-logo.svg"
-          alt="Word Smash"
-        />
+        <div class="cartridge__wordmark cartridge__wordmark--wordsmash" aria-label="Word Smash">
+          <span class="wordsmash-word" aria-hidden="true">
+            <span>W</span><span>O</span><span>R</span><span>D</span>
+          </span>
+          <span class="wordsmash-smash">SMASH</span>
+        </div>
+        <div class="cartridge__logo-tagline">Find · Connect · Smash</div>
         <p class="cartridge__desc">
           Find hidden words in a letter grid — or go Hard mode, where every tile stays covered until you tap it.
         </p>
@@ -290,11 +376,10 @@
     <a class="cartridge" style="--cartridge-color: #8E5CC7" href="./aidle/">
       <div class="cartridge__stripe"></div>
       <div class="cartridge__body">
-        <img
-          class="cartridge__logo"
-          src="./aidle/images/aidle-logo.svg"
-          alt="AIDLE"
-        />
+        <div class="cartridge__wordmark cartridge__wordmark--aidle" aria-label="AIDLE">
+          <span class="aidle-ai">AI</span><span>DLE</span>
+        </div>
+        <div class="cartridge__logo-tagline">Human vs AI</div>
         <p class="cartridge__desc">
           A familiar word puzzle with a new identity — built as the foundation for AI and idle-inspired twists.
         </p>
@@ -306,8 +391,11 @@
     <a class="cartridge" style="--cartridge-color: #46B8A9" href="./bingobash/">
       <div class="cartridge__stripe"></div>
       <div class="cartridge__body">
-        <div class="cartridge__title">Bingo Bash</div>
-        <p class="cartridge__desc">Game-day Bingo built around real team and player events. Complete squares as the action happens and chase the highest score.</p>
+        <div class="cartridge__wordmark cartridge__wordmark--bingo">
+          <span class="bingo-word">BINGO</span>
+          <span class="bash-word">BASH</span>
+        </div>
+        <p class="cartridge__desc">High School Sports Game-Day Bingo built around real team and player events. Complete squares as the action happens and chase the highest score.</p>
         <div class="cartridge__meta">LIVE SPORTS · UNIQUE CARDS · BINGO</div>
         <span class="cartridge__cta">Play Bingo Bash <span class="arrow">→</span></span>
       </div>

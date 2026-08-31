@@ -275,9 +275,9 @@ h1 {
 .home-link {
     justify-self: start;
     font-family: "Archivo", sans-serif;
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: #666;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #3f3744;
     text-decoration: none;
 }
 .home-link:hover { color: #5e2b8f; }
@@ -296,10 +296,10 @@ h1 {
     color: #444;
     border-radius: 5px;
     font-family: "Archivo", sans-serif;
-    font-size: 0.7rem;
-    font-weight: 600;
+    font-size: 0.82rem;
+    font-weight: 700;
     cursor: pointer;
-    padding: 6px 8px;
+    padding: 8px 10px;
 }
 .btn-signin:hover,
 .btn-user-action:hover { border-color: #5e2b8f; color: #5e2b8f; }
@@ -309,17 +309,19 @@ h1 {
     align-items: center;
     justify-content: flex-end;
     gap: 5px;
-    max-width: 190px;
+    min-width: 0;
 }
+
 .user-chip-email {
-    max-width: 90px;
+    min-width: 0;
+    max-width: 220px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     font-family: "Archivo", sans-serif;
-    font-size: 0.68rem;
-    font-weight: 600;
-    color: #555;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #3f3744;
 }
 
 /* Shared auth modal, adapted to AIDLE's light theme. */
@@ -397,7 +399,7 @@ h1 {
     .brand-block h1 { font-size: 1.45rem; }
     .brand-subtitle { font-size: 0.5rem; }
     .user-chip-email { display: none; }
-    .btn-user-action { padding: 5px 6px; font-size: 0.64rem; }
+    .btn-user-action { padding: 6px 7px; font-size: 0.72rem; }
 }
 
 /* ─── AIDLE AI race ─── */
@@ -804,4 +806,46 @@ h1 {
     .debug-target-controls input { grid-column: 1 / -1; }
 }
 
-.aidle-logo-img{display:block;width:min(210px,32vw);height:auto;max-height:58px}.brand-logo-block{display:flex;justify-content:center;align-items:center}@media(max-width:600px){.aidle-logo-img{width:125px}}
+.aidle-logo-img{display:block;width:min(260px,40vw);height:auto;max-height:72px}.brand-logo-block{display:flex;justify-content:center;align-items:center}@media(max-width:600px){.aidle-logo-img{width:150px}}
+
+
+/* ─── Repeated-letter legend ─── */
+.repeat-legend {
+    width: min(420px, calc(100vw - 28px));
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: -2px auto 2px;
+    font-family: "Archivo", sans-serif;
+    font-size: 0.72rem;
+    color: #625a68;
+}
+
+.repeat-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.repeat-legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    flex: 0 0 14px;
+}
+
+.repeat-legend-swatch--blue {
+    background: #3b82c4;
+}
+
+.repeat-legend-swatch--purple {
+    background: #7b4bb7;
+}
+
+@media (max-width: 520px) {
+    .repeat-legend {
+        gap: 8px 14px;
+        font-size: 0.68rem;
+    }
+}
