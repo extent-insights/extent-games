@@ -87,6 +87,7 @@ async function logEvent(eventType, extraState = {}) {
 
   const payload = {
     event_type:   eventType,
+    game:         "trivia_smash",
     session_id:   SESSION_ID,
     user_id:      user?.id ?? null,
     browser:      navigator.userAgent,
