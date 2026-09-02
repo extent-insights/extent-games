@@ -9,7 +9,7 @@ initGameAuthUI({
 
 const telemetry = createTelemetryClient({
     apiBase: API_BASE,
-    game: "aidle"
+    game: "aidle",
 });
 
 // ── Game ──────────────────────────────────────────
@@ -134,7 +134,7 @@ async function initGame() {
         if (!gameToken) return;
         const includeGameState = !EVENTS_WITHOUT_GAME_STATE.includes(eventType);
 
-        return telemetry.track(
+        return telemetry.log(
             eventType,
             includeGameState ? { ...getGameState(), ...extraState } : {}
         );
@@ -154,7 +154,7 @@ async function initGame() {
         const data = await res.json();
         dictionary = data.dictionary;
         gameToken = data.token;
-        telemetry.setSessionId(gameToken);
+        telemetry.setGameSessionId(gameToken);
         playerConfig = data.player_config || playerConfig;
         aiState = data.ai || aiState;
         updateRaceStatus();

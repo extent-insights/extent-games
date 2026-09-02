@@ -1,9 +1,6 @@
 import { authHeaders } from "../../common/js/auth.js";
 import { initGameAuthUI } from "../../common/js/game-auth-ui.js";
-import {
-  createTelemetryClient,
-  createTelemetrySessionId,
-} from "../../common/js/telemetry.js";
+import { createTelemetryClient } from "../../common/js/telemetry.js";
 import { API_BASE } from "./config.js";
 initGameAuthUI({ apiBase: API_BASE });
 
@@ -38,12 +35,9 @@ let questionStartTime = 0;
 let totalTime     = 0;
 let correctCount  = 0;
 
-// ── Session ID — unique per game, used for log correlation ───────────────────
-const SESSION_ID = createTelemetrySessionId();
 const telemetry = createTelemetryClient({
   apiBase: API_BASE,
   game: "trivia_smash",
-  sessionId: SESSION_ID,
 });
 
 // ── DOM refs ─────────────────────────────────────
@@ -89,7 +83,7 @@ const EVENTS_WITHOUT_GAME_STATE = ["session_start"];
 async function logEvent(eventType, extraState = {}) {
   const includeGameState = !EVENTS_WITHOUT_GAME_STATE.includes(eventType);
 
-  return telemetry.track(
+  return telemetry.log(
     eventType,
     includeGameState ? {
       mode:           MODE,
