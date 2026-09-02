@@ -1,10 +1,15 @@
 import { API_BASE, IS_LOCAL_DEV } from "./config.js";
-import { getUser } from "../../common/js/auth.js";
 import { initGameAuthUI } from "../../common/js/game-auth-ui.js";
+import { createTelemetryClient } from "../../common/js/telemetry.js";
 
 initGameAuthUI({
     apiBase: API_BASE,
     promptForMissingTag: true
+});
+
+const telemetry = createTelemetryClient({
+    apiBase: API_BASE,
+    game: "aidle"
 });
 
 // ── Game ──────────────────────────────────────────
@@ -68,7 +73,6 @@ async function initGame() {
     let currentRow = 0;
     let currentWord = "";
     let gameOver = false;
-    let currentUserId = null;
     const params = new URLSearchParams(window.location.search);
     const requestedDifficulty = (params.get("difficulty") || "medium").toLowerCase();
     const difficulty = ["easy", "medium", "hard"].includes(requestedDifficulty)
@@ -89,13 +93,6 @@ async function initGame() {
 
     updateClock();
     setInterval(updateClock, 1000);
-
-    try {
-        const user = await getUser();
-        currentUserId = user?.id ?? null;
-    } catch (err) {
-        console.warn("Could not resolve user for telemetry:", err);
-    }
 
     function updateClock() {
         clockEl.textContent = new Date().toLocaleTimeString();
@@ -137,28 +134,10 @@ async function initGame() {
         if (!gameToken) return;
         const includeGameState = !EVENTS_WITHOUT_GAME_STATE.includes(eventType);
 
-        const payload = {
-            event_type: eventType,
-            game: "aidle",
-            session_id: gameToken,
-            user_id: currentUserId,
-            browser: navigator.userAgent,
-            device: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
-            locale: navigator.language,
-            screen_width: window.screen.width,
-            screen_height: window.screen.height,
-            game_state: includeGameState ? { ...getGameState(), ...extraState } : null,
-        };
-
-        try {
-            await fetch(`${API_BASE}/log_event`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-        } catch (err) {
-            console.warn("Logging failed:", err);
-        }
+        return telemetry.track(
+            eventType,
+            includeGameState ? { ...getGameState(), ...extraState } : {}
+        );
     }
 
     try {
@@ -175,6 +154,7 @@ async function initGame() {
         const data = await res.json();
         dictionary = data.dictionary;
         gameToken = data.token;
+        telemetry.setSessionId(gameToken);
         playerConfig = data.player_config || playerConfig;
         aiState = data.ai || aiState;
         updateRaceStatus();

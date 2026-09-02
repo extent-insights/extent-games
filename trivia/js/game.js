@@ -1,5 +1,9 @@
-import { authHeaders, getUser } from "../../common/js/auth.js";
+import { authHeaders } from "../../common/js/auth.js";
 import { initGameAuthUI } from "../../common/js/game-auth-ui.js";
+import {
+  createTelemetryClient,
+  createTelemetrySessionId,
+} from "../../common/js/telemetry.js";
 import { API_BASE } from "./config.js";
 initGameAuthUI({ apiBase: API_BASE });
 
@@ -35,9 +39,12 @@ let totalTime     = 0;
 let correctCount  = 0;
 
 // ── Session ID — unique per game, used for log correlation ───────────────────
-const SESSION_ID = (typeof crypto !== "undefined" && crypto.randomUUID)
-  ? crypto.randomUUID()
-  : Math.random().toString(36).slice(2) + Date.now().toString(36);
+const SESSION_ID = createTelemetrySessionId();
+const telemetry = createTelemetryClient({
+  apiBase: API_BASE,
+  game: "trivia_smash",
+  sessionId: SESSION_ID,
+});
 
 // ── DOM refs ─────────────────────────────────────
 const hudMode      = document.getElementById("hudMode");
@@ -82,20 +89,9 @@ const EVENTS_WITHOUT_GAME_STATE = ["session_start"];
 async function logEvent(eventType, extraState = {}) {
   const includeGameState = !EVENTS_WITHOUT_GAME_STATE.includes(eventType);
 
-  // Get user_id if logged in — null for anonymous
-  const user = await getUser();
-
-  const payload = {
-    event_type:   eventType,
-    game:         "trivia_smash",
-    session_id:   SESSION_ID,
-    user_id:      user?.id ?? null,
-    browser:      navigator.userAgent,
-    device:       /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
-    locale:       navigator.language,
-    screen_width:  window.screen.width,
-    screen_height: window.screen.height,
-    game_state: includeGameState ? {
+  return telemetry.track(
+    eventType,
+    includeGameState ? {
       mode:           MODE,
       category:       CATEGORY || null,
       period:         PERIOD   || null,
@@ -105,18 +101,8 @@ async function logEvent(eventType, extraState = {}) {
       total:          config.endless ? null : questions.length,
       lives:          lives,
       ...extraState,
-    } : null,
-  };
-
-  try {
-    await fetch(`${API_BASE}/log_event`, {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify(payload),
-    });
-  } catch (err) {
-    console.warn("Logging failed:", err.message);
-  }
+    } : {}
+  );
 }
 
 // ── Load questions ────────────────────────────────
