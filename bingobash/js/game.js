@@ -570,6 +570,8 @@ async function completeTile(tileId, button) {
     Object.assign(cardState, {
       total_points_earned: result.total_points_earned,
       tile_points_earned: result.tile_points_earned,
+      bingo_bonus_points: result.bingo_bonus_points,
+      blackout_bonus_points: result.blackout_bonus_points,
       tiles_completed: result.tiles_completed,
       bingo_awarded: cardState.bingo_awarded || result.bingo_achieved,
       blackout_awarded: cardState.blackout_awarded || result.blackout_achieved,
@@ -638,8 +640,8 @@ async function undoTile(tileId, button) {
       bingo_bonus_points: result.bingo_bonus_points,
       blackout_bonus_points: result.blackout_bonus_points,
       tiles_completed: result.tiles_completed,
-      bingo_awarded: result.bingo_achieved,
-      blackout_awarded: result.blackout_achieved,
+      bingo_awarded: result.bingo_awarded,
+      blackout_awarded: result.blackout_awarded,
       card_status: result.card_status,
     });
     const tile = cardState.tiles.find(item => item.card_tile_id === tileId);
